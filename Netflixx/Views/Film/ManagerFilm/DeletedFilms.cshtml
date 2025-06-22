@@ -1,0 +1,530 @@
+﻿@using Netflixx.Models
+@model IEnumerable<FilmsModel>
+
+@{
+    ViewData["Title"] = "Thùng rác";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="/css/filmmanager.css" />
+    <link rel="stylesheet" href="~/css/film.css" />
+
+    <style>
+        /* Thêm style cho toast */
+        .toast {
+            transition: opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .film-list-card-header {
+            position: relative;
+            padding: 1rem;
+        }
+
+        .dataTables_wrapper .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .bottom {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 1rem;
+        }
+
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .price-column {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .main-content {
+            padding: 0.5rem;
+        }
+
+        /* Thêm vào phần style */
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        /* Xanh lá */
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+        /* Xanh dương */
+        .bg-warning {
+            background-color: #ffc107 !important;
+            color: #212529 !important;
+        }
+        /* Vàng */
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        /* Đỏ */
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="/image/logo/NetflixxLogo.png" alt="Netflixx Logo" style="height:40px;" />
+            </a>
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Film" asp-action="Index">Search</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Film" asp-action="Type">Films</a></li>
+                <li class="nav-item"><a class="nav-link active" asp-controller="FilmController1" asp-action="Index">List</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Series</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Categories</a></li>
+            </ul>
+            <span class="navbar-text me-3">Noti</span>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle p-0" href="#" role="button" id="avatarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="@ViewBag.AvatarUrl" class="avatar-trigger" alt="User avatar" />
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="avatarDropdown">
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="Profile">Profile</a></li>
+                    <li><a class="dropdown-item" asp-controller="Home" asp-action="History">History</a></li>
+                    <li><button class="dropdown-item" type="button">Settings</button></li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                            <button type="submit" class="dropdown-item">Sign out</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="film-list-sidebar" id="filmListSidebar">
+        <div>
+            <a class="d-flex align-items-center justify-content-center gap-1 text-decoration-none">MENU</a>
+            <a asp-action="Search"><i class="fas fa-filter"></i> Tìm kiếm & Lọc</a>
+            <a asp-action="Index"><i class="fas fa-list"></i> Danh sách phim</a>
+            <a asp-action="Create"><i class="fas fa-plus"></i> Thêm phim mới</a>
+            <a asp-action="History"><i class="fas fa-history"></i> Lịch sử chỉnh sửa</a>
+            <a asp-action="Trash" class="active"><i class="fas fa-trash-alt"></i> Thùng rác</a>
+        </div>
+    </div>
+
+    <!-- Sidebar Toggle Buttons -->
+    <div>
+        <button id="filmListToggleSidebar" class="film-list-toggle-btn">
+            <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button id="filmListShowSidebar" class="film-list-show-sidebar-btn">
+            <i class="fas fa-angle-double-right"></i>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="film-list-main-content" id="filmListMainContent">
+        <div class="film-list-card shadow">
+            <div class="film-list-card-header d-flex justify-content-center align-items-center">
+                <strong class="fs-3"><i class="fas fa-trash-alt me-2"></i>THÙNG RÁC</strong>
+            </div>
+            <div class="card-body main-content">
+                @if (ViewBag.Message != null)
+                {
+                    <div class="alert alert-info alert-dismissible fade show">
+                        @ViewBag.Message
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- Film list -->
+                <div class="table-responsive">
+                    <table class="table film-list-table table-striped table-bordered" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th width="3%">STT</th>
+                                <th width="10%">Ảnh</th>
+                                <th width="20%">Tên phim</th>
+                                <th width="15%">Thể loại</th>
+                                <th width="14%">Ngày phát hành</th>
+                                <th width="14%">Người thực hiện</th>
+                                <th width="14%">Ngày xóa</th>
+                                <th width="10%">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int counter = 1;
+                            }
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@counter</td>
+                                    <td>
+                                        <img src="@item.PosterUrl" style="width: 80px; height: auto;" onerror="this.src='https://via.placeholder.com/80x120'">
+                                    </td>
+                                    <td>@item.Title</td>
+                                    <td>@item.Genre</td>
+                                    <td>@(item.ReleaseDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                    <td>@(item.ModifiedBy ?? "N/A")</td>
+                                    <td>@(item.ModificationDate?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button class="btn film-list-btn-info" title="Xem chi tiết"
+                                                    onclick="showDetailModal(
+                                                                    '@item.Id',
+                                                                    '@Html.Raw(item.Title.Replace("'", "\\'"))',
+                                                                    '@item.ReleaseDate?.ToString("dd/MM/yyyy")',
+                                                                    '@item.Genre',
+                                                                    '@Html.Raw(item.Description?.Replace("'", "\\'") ?? "")',
+                                                                    '@(item.Price?.ToString() ?? "0")',
+                                                                    '@item.FilmURL',
+                                                                    '@item.PosterUrl',
+                                                                    '@item.Duration',
+                                                                    '@Html.Raw(item.Director?.Replace("'", "\\'") ?? "")',
+                                                                    '@Html.Raw(item.Actors?.Replace("'", "\\'") ?? "")',
+                                                                    '@item.Rating',
+                                                                    '@item.RatingValue')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn film-list-btn-success" title="Khôi phục"
+                                                    onclick="showRestoreModal('@item.Id', '@Html.Raw(item.Title.Replace("'", "\\'"))')">
+                                                <i class="fas fa-trash-restore"></i>
+                                            </button>
+                                            <button class="btn film-list-btn-danger" title="Xóa vĩnh viễn"
+                                                    onclick="showDeleteModal('@item.Id', '@Html.Raw(item.Title.Replace("'", "\\'"))')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                counter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal (Sử dụng modal từ SearchFilms) -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content film-list-modal-content">
+                <div class="modal-header film-list-card-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Chi tiết phim</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img id="detailImg" src="" alt="Ảnh phim" class="img-fluid rounded mb-3" style="max-height:400px;width:100%;object-fit:cover;">
+                            <div class="text-center">
+                                <span class="badge me-2" id="detailRatingValue"></span>
+                                <span class="badge film-list-badge-info" id="detailRating"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="text-white mb-3" id="detailTitle"></h4>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-tag me-2"></i>Thể loại:</strong> <span id="detailGenre"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-clock me-2"></i>Thời lượng:</strong> <span id="detailDuration"></span> phút</p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-calendar-alt me-2"></i>Ngày phát hành:</strong> <span id="detailRelease"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-user-tie me-2"></i>Đạo diễn:</strong> <span id="detailDirector"></span></p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <p><strong><i class="fas fa-money-bill-wave me-2"></i>Giá:</strong> <span id="detailPrice"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>
+                                        <strong><i class="fas fa-link me-2"></i>URL phim:</strong>
+                                        <a id="detailFilmURL" href="#" target="_blank" class="text-decoration-none">Xem liên kết</a>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <h5><i class="fas fa-users me-2"></i>Diễn viên</h5>
+                                <p id="detailActors" class="ps-4"></p>
+                            </div>
+
+                            <div class="mb-3">
+                                <h5><i class="fas fa-align-left me-2"></i>Nội dung</h5>
+                                <p id="detailDescription" class="ps-4"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn film-list-btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content film-list-modal-content">
+                <div class="modal-header film-list-card-header">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Xác nhận xóa vĩnh viễn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-dark text-light">
+                    <p>Bạn chắc chắn muốn xóa vĩnh viễn phim: <strong id="filmTitleToDelete" class="text-warning"></strong>?</p>
+                    <p class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer bg-dark">
+                    <button type="button" class="btn film-list-btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <form id="deleteForm" method="post" asp-action="DeletePermanent">
+                        <input type="hidden" id="filmIdToDelete" name="id" />
+                        <button type="submit" class="btn film-list-btn-danger"><i class="fas fa-trash me-1"></i>Xóa vĩnh viễn</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm modal xác nhận khôi phục -->
+    <div class="modal fade" id="restoreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content film-list-modal-content">
+                <div class="modal-header film-list-card-header">
+                    <h5 class="modal-title"><i class="fas fa-trash-restore me-2"></i>Xác nhận khôi phục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body bg-dark text-light">
+                    <p>Bạn chắc chắn muốn khôi phục phim: <strong id="filmTitleToRestore" class="text-warning"></strong>?</p>
+                    <p class="text-info"><i class="fas fa-info-circle me-2"></i>Phim sẽ được chuyển về danh sách chính.</p>
+                </div>
+                <div class="modal-footer bg-dark">
+                    <button type="button" class="btn film-list-btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Hủy</button>
+                    <form id="restoreForm" method="post" action="@Url.Action("Restore", "FilmController1")">
+                        <input type="hidden" id="filmIdToRestore" name="id" />
+                        <input type="hidden" name="__RequestVerificationToken"
+                               value="@Html.AntiForgeryToken()" />
+                        <button type="submit" class="btn film-list-btn-success">
+                            <i class="fas fa-trash-restore me-1"></i>Khôi phục
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "searching": true,
+                "lengthMenu": [[5, 10, 15, 20], [5, 10, 15, 20]],
+                "pageLength": 10,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Vietnamese.json",
+                    "info": "",
+                    "paginate": {
+                        "previous": "Trước",
+                        "next": "Tiếp"
+                    }
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [7] }
+                ],
+                "dom": '<"top"lf>rt<"bottom"p><"clear">',
+                "initComplete": function() {
+                    $('.dataTables_filter input').addClass('form-control bg-dark text-light').attr('placeholder', 'Tìm kiếm...');
+                    $('.dataTables_length').prependTo('#dataTable_wrapper .top');
+                }
+            });
+
+            $('#filmListToggleSidebar').click(function () {
+                $('#filmListSidebar').addClass('collapsed');
+                $('#filmListMainContent').addClass('expanded');
+                $('#filmListShowSidebar').show();
+                $(this).hide();
+            });
+
+            $('#filmListShowSidebar').click(function () {
+                $('#filmListSidebar').removeClass('collapsed');
+                $('#filmListMainContent').removeClass('expanded');
+                $('#filmListShowSidebar').hide();
+                $('#filmListToggleSidebar').show();
+            });
+        });
+
+        function showDetailModal(id, title, releaseDate, genre, description, price, filmURL, img, duration, director, actors, rating, ratingValue) {
+            $('#detailTitle').text(title);
+            $('#detailRelease').text(releaseDate || 'N/A');
+            $('#detailGenre').text(genre || 'N/A');
+            $('#detailDuration').text(duration || 'N/A');
+            $('#detailDirector').text(director || 'N/A');
+            $('#detailDescription').text(description || 'Không có mô tả');
+
+            // Format giá tiền với đơn vị VND
+            const priceValue = parseFloat(price);
+            $('#detailPrice').text(!isNaN(priceValue) ?
+                priceValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : 'N/A');
+
+            $('#detailFilmURL').attr('href', filmURL || '#');
+            $('#detailActors').text(actors || 'N/A');
+            $('#detailImg').attr('src', img || 'https://via.placeholder.com/300x450?text=No+Poster');
+            $('#detailRating').text(rating ? rating + '/10' : 'N/A');
+
+            var ratingValueBadge = $('#detailRatingValue');
+            ratingValueBadge.removeClass().addClass('badge');
+            if (ratingValue === 'P') {
+                ratingValueBadge.addClass('bg-success').text('P - Mọi lứa tuổi');
+            } else if (ratingValue === 'C13') {
+                ratingValueBadge.addClass('bg-primary').text('C13 - Trên 13 tuổi');
+            } else if (ratingValue === 'C16') {
+                ratingValueBadge.addClass('bg-warning').text('C16 - Trên 16 tuổi');
+            } else if (ratingValue === 'C18') {
+                ratingValueBadge.addClass('bg-danger').text('C18 - Trên 18 tuổi');
+            } else {
+                ratingValueBadge.addClass('bg-secondary').text('N/A');
+            }
+
+            var detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+            detailModal.show();
+        }
+
+                // Thay thế hàm showRestoreModal bằng hàm này
+        function showRestoreModal(id, title) {
+            $('#filmIdToRestore').val(id);
+            $('#filmTitleToRestore').text(title);
+
+            var restoreModal = new bootstrap.Modal(document.getElementById('restoreModal'));
+            restoreModal.show();
+        }
+
+        // Cập nhật xử lý submit form
+        $('#restoreForm').submit(function(e) {
+            e.preventDefault();
+
+            var formData = $(this).serialize();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('success', response.message);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showToast('error', response.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
+                    showToast('error', 'Lỗi kết nối: ' + xhr.statusText);
+                }
+            });
+        });
+
+        function showDeleteModal(id, title) {
+            $('#filmIdToDelete').val(id);
+            $('#filmTitleToDelete').text(title);
+            $('#deleteForm').attr('action', '/FilmController1/DeletePermanent/' + id);
+
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+            $('#deleteForm').submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        // Hiển thị thông báo toast thay vì alert
+                        showToast('success', 'Xóa vĩnh viễn thành công!');
+                        $('#deleteModal').modal('hide');
+
+                        // Reload sau 1 giây để người dùng có thể đọc thông báo
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast('error', 'Có lỗi xảy ra: ' + (response.message || ''));
+                    }
+                },
+                error: function(xhr) {
+                    showToast('error', 'Lỗi kết nối: ' + xhr.responseText);
+                }
+            });
+        });
+
+        // Hàm hiển thị toast thông báo
+        function showToast(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `toast show align-items-center text-white bg-${type}`;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '9999';
+            toast.style.minWidth = '300px';
+
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+
+            // Cho phép đóng thủ công
+            toast.querySelector('.btn-close').addEventListener('click', () => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }
+    </script>
+</body>
+</html>

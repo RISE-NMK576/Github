@@ -1,0 +1,150 @@
+/* Film List Component Styles */
+.film-list-container {
+    background-color: #1f1f1f;
+    color: #fff;
+    transition: margin-left 0.3s;
+    overflow-x: hidden;
+}
+
+.film-list-navbar {
+    z-index: 1100;
+}
+
+.film-list-sidebar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    height: calc(100vh - 70px);
+    width: 230px;
+    background-color: #2c2c2c;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #444;
+}
+
+    .film-list-sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+
+    .film-list-sidebar a {
+        display: block;
+        padding: 15px 20px;
+        color: #fff;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .film-list-sidebar a:hover {
+            background-color: #ff4d6d;
+        }
+
+.film-list-main-content {
+    margin-left: 230px;
+    padding: 120px 20px 20px;
+    transition: margin-left 0.3s ease;
+}
+
+    .film-list-main-content.expanded {
+        margin-left: 0;
+    }
+
+.film-list-toggle-btn {
+    position: fixed;
+    top: 80px;
+    z-index: 1200;
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    left: 10px;
+}
+
+.film-list-show-sidebar-btn {
+    position: fixed;
+    top: 80px;
+    z-index: 1200;
+    background-color: #1f1f1f;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    left: 10px;
+    display: none;
+}
+
+.film-list-sidebar.collapsed ~ .film-list-show-sidebar-btn {
+    display: block;
+}
+
+.film-list-card {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+}
+
+.film-list-card-header {
+    background-color: #ff4d6d;
+    color: #fff;
+}
+
+.film-list-table {
+    color: #fff;
+    width: 100%;
+}
+
+    .film-list-table thead {
+        background-color: #333;
+    }
+
+/* Badges */
+.film-list-badge-primary {
+    background-color: #ff4d6d;
+}
+
+.film-list-badge-success {
+    background-color: #28a745;
+}
+
+.film-list-badge-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.film-list-badge-secondary {
+    background-color: #6c757d;
+}
+
+/* Buttons */
+.film-list-btn-primary {
+    background-color: #ff4d6d;
+    border: none;
+}
+
+.film-list-btn-success {
+    background-color: #28a745;
+    border: none;
+}
+
+.film-list-btn-info {
+    background-color: #17a2b8;
+    border: none;
+}
+
+.film-list-btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+.film-list-btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+/* Modal Styles (if needed) */
+.film-list-modal-content {
+    background-color: #2c2c2c;
+    color: #fff;
+}
