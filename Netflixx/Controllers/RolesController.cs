@@ -5,13 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 //[Authorize(Roles = "Admin")]
-<<<<<<< HEAD:Netflixx/Controllers/RolesController.cs
-=======
+
 [Area("Admin")]
 
 //[Authorize(Roles = "Admin")]
 //7b1ff5751807e23d2b85cb2fc4b4366db72fcb63
->>>>>>> origin/developers:Netflixx/Areas/Admin/Controllers/RolesController.cs
+
 public class RolesController : Controller
 {
     private readonly RoleManager<IdentityRole> _roleManager;

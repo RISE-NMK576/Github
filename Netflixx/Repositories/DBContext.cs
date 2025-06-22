@@ -9,9 +9,6 @@ namespace Netflixx.Repositories
         public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
         }
-<<<<<<< HEAD
-
-=======
         public virtual DbSet<ContactInfo> ContactInfos { get; set; }
         public virtual DbSet<BrandSouModel> BrandSous { get; set; }
         public virtual DbSet<CategorySouModel> CategorySous { get; set; }
@@ -21,7 +18,6 @@ namespace Netflixx.Repositories
         public virtual DbSet<OrderSouModel> OrderSous { get; set; }
         public virtual DbSet<OrderDetailSouModel> OrderDetailSous { get; set; }
         public virtual DbSet<BlogPost> BlogPosts { get; set; }
->>>>>>> origin/developers
         public virtual DbSet<PaymentProvidersModel> PaymentProviders { get; set; }
         public virtual DbSet<PaymentEnvironmentsModel> PaymentEnvironments { get; set; }
         public virtual DbSet<PaymentTransactionsModel> PaymentTransactions { get; set; }
@@ -42,20 +38,14 @@ namespace Netflixx.Repositories
         public virtual DbSet<UserAccountsModel> UserAccounts { get; set; }
         public virtual DbSet<PointsTransactionsModel> PointsTransactions { get; set; }
         public virtual DbSet<DailyRevenueModel> DailyRevenue { get; set; }
-
-<<<<<<< HEAD
-=======
         public virtual DbSet<LoginHistory> LoginHistory { get; set; }
         public virtual DbSet<FavoriteFilmsModel> FavoriteFilms { get; set; }
         public virtual DbSet<FilmComment> FilmComments { get; set; }
         public DbSet<FilmRating> FilmRatings { get; set; }
->>>>>>> origin/developers
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity<OrderDetailSouModel>()
                 .Property(od => od.UnitPrice)
                 .HasPrecision(18, 2);
@@ -104,7 +94,7 @@ namespace Netflixx.Repositories
                 .WithMany(o => o.OrderDetails)
                 .HasForeignKey(od => od.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
->>>>>>> origin/developers
+
             // Configure decimal precision
             modelBuilder.Entity<FilmsModel>()
                 .Property(f => f.Price)

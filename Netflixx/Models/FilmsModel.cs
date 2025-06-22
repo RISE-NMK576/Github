@@ -69,7 +69,7 @@ namespace Netflixx.Models
         [Url(ErrorMessage = "Đường dẫn phim không hợp lệ")]
         public string FilmURL { get; set; }
 
-<<<<<<< HEAD
+
         [Display(Name = "Đánh giá")]
         [Range(0, 10, ErrorMessage = "Đánh giá phải từ 0 đến 10")]
         public float Rating { get; set; } = 0.0f;
@@ -186,11 +186,11 @@ namespace Netflixx.Models
             var displayAttr = prop.GetCustomAttribute<DisplayAttribute>();
             return displayAttr?.Name ?? prop.Name;
         }
-=======
+
         [ForeignKey("ProductionManagerId")]
         public virtual ProductionManager ProductionManager { get; set; }
 
         public string? TrailerURL { get; set; }
->>>>>>> origin/developers
+
     }
 }
