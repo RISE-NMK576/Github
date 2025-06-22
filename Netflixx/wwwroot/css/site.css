@@ -11,15 +11,8 @@ html {
 }
 
 body {
-<<<<<<< HEAD
+
   margin-bottom: 60px;
-}
-=======
-    background-color: #000 !important;
-    color: #fff !important;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
 }
 
 /* ===== Navigation Bar Styles ===== */
@@ -446,4 +439,4 @@ footer {
         margin: 0 0.25rem;
     }
 }
->>>>>>> origin/developers
+

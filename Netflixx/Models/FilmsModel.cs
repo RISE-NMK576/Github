@@ -190,7 +190,7 @@ namespace Netflixx.Models
         [ForeignKey("ProductionManagerId")]
         public virtual ProductionManager ProductionManager { get; set; }
 
-        public string? TrailerURL { get; set; }
+
 
     }
 }

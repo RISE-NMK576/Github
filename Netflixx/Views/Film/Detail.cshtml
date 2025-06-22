@@ -6,7 +6,7 @@
     Layout = null;
 }
 
-<<<<<<< HEAD
+
 <!-- Thêm thanh navbar giống Homepage -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
@@ -54,9 +54,9 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-4">
-                <img src="@(Model.PosterUrl ?? "https://via.placeholder.com/300x450")"
+                <img src="@(Model.FilmsModel.PosterUrl ?? "https://via.placeholder.com/300x450")"
                  class="img-fluid rounded"
-                 alt="@Model.Title">
+                 alt="@Model.FilmsModel.Title">
         </div>
         <div class="col-md-8">
             <h1 class="text-light">@Model.Title</h1>
@@ -71,7 +71,7 @@
             <div class="mt-4">
                 <a href="@Model.FilmURL" class="btn btn-danger btn-lg" target="_blank">Xem phim</a>
                 <a asp-action="Index" class="btn btn-outline-light">Quay lại</a>
-=======
+
 @{
     // determine which tab is active based on a query‑string or default
     var activeTab = (Context.Request.Query["tab"].FirstOrDefault() ?? "info");
@@ -246,7 +246,7 @@
                        asp-route-filmId="@Model.Film.Id"
                        class="poster-link d-block">
                         <div class="card poster-card position-relative overflow-hidden">
-                            <img src="@Model.Film.PosterPath"
+                                                <img src="@Model.Film.PosterUrl"
                                  class="card-img-top"
                                  style="height:314px; object-fit:cover;" />
 
@@ -400,7 +400,7 @@
                                    class="w-100 h-100"
                                    controls
                                    preload="metadata"
-                                   poster="@Model.Film.PosterPath"
+                                   poster="@Model.Film.PosterUrl"
                                    src="@Url.Content("~/" + Model.Film.TrailerURL)">
                                 Your browser does not support video playback.
                             </video>
@@ -422,7 +422,7 @@
                 <div class="card mb-2 recent-card">
                     <div class="row g-0">
                         <div class="col-4">
-                            <img src="@(f.PosterPath ?? "/images/placeholder.png")"
+                            <img src="@(f.PosterUrl ?? "/images/placeholder.png")"
                                  class="img-fluid"
                                  alt="@f.Title" />
                         </div>
